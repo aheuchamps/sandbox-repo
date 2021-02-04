@@ -44,3 +44,13 @@ To run a gnuplot file called "BANDS-and-DOS.gnu"
 gnuplot "BANDS-and-DOS.gnu"
 To convert the .eps output to some .pdf
 epstopdf BANDS-and-DOS.eps
+
+
+
+To use things properly:
+1) create a Git remote repository (online)
+2) clone it where it has to be
+3) git add ~~what_has_to_be_put_on_Github~~
+4) git commit -m "message_for_the_commit"
+5) git remote add origin ~~url_of_the_repository~~
+6) git push origin ~~name_of_local_branch~~
