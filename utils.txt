@@ -48,9 +48,9 @@ epstopdf BANDS-and-DOS.eps
 
 
 To use things properly:
-1) create a Git remote repository (online)
-2) clone it where it has to be
-3) git add ~~what_has_to_be_put_on_Github~~
-4) git commit -m "message_for_the_commit"
-5) git remote add origin ~~url_of_the_repository~~
-6) git push origin ~~name_of_local_branch~~
+1) create a Git remote repository (online, only do it once)
+2) clone it where it has to be (only do it once)
+3) git add ~~what_has_to_be_put_on_Github~~ (each time something is modified)
+4) git commit -m "message_for_the_commit" (each time something is modified)
+5) git remote add origin ~~url_of_the_repository~~ (only do it once)
+6) git push origin ~~name_of_local_branch~~ (each time something is modified)
