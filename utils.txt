@@ -1,0 +1,46 @@
+Hello, I had the same issue and needed to manually add the pic-as toolchain because I didn't install MPLAB to its default location.
+To do so, you need to go in Tools->Options->Embedded->Build Tools->Add and set ???\xc8\v2.31\pic-as\bin (where ??? is the installation path of the xc8 compiler).
+After that, pic-as appeared as expected in the project configuration
+
+
+
+git pull origin Bertrand-test:Alex-TB
+
+From anywhere, type in the command line to run the code
+/home/aheuchamps/Matjes-GITHUB/Matjes/Matjes/bin/Matjes
+
+
+
+If you want to delete all the TB_solution.dat file
+you could go to a direction below which all of them are and do
+find . -name TB_solution_r.dat -delete
+
+
+
+If want to replace "TB_write_solution_r .true." by
+"TB_solution_r .false." in input
+sed -i  "s/TB_write_solution_r .true./TB_write_solution_r .false./" input 
+
+
+
+And if they are all in subdirectories
+sed -i "s/TB_write_solution_r .true./TB_write_solution_r F/" */input
+
+
+
+if you want to find out were all your disk quota went you can use
+du -sh * | sort -h
+to show the sorted size of subdirectories and files
+
+
+
+To copy all the .gnu files in the directory t5d-5
+into all the other directories
+echo ./*/ | xargs -n 1 cp t5d-5/*.gnu
+
+
+
+To run a gnuplot file called "BANDS-and-DOS.gnu"
+gnuplot "BANDS-and-DOS.gnu"
+To convert the .eps output to some .pdf
+epstopdf BANDS-and-DOS.eps
