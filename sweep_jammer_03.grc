@@ -1,0 +1,450 @@
+options:
+  parameters:
+    author: Alexandre HEUCHAMPS
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: qt_gui
+    hier_block_src_path: '.:'
+    id: sweep_jammer
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: Test sweep jammer
+    window_size: (1000,1000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 4.0]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: f
+  id: variable
+  parameters:
+    comment: ''
+    value: '[f_start + i*(f_stop-f_start)/(n_channels-1) for i in range(n_channels)]'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [576, 4.0]
+    rotation: 0
+    state: true
+- name: f_start
+  id: variable
+  parameters:
+    comment: ''
+    value: 2e3
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [280, 4.0]
+    rotation: 0
+    state: true
+- name: f_stop
+  id: variable
+  parameters:
+    comment: ''
+    value: 10e3
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [280, 68.0]
+    rotation: 0
+    state: true
+- name: n_channels
+  id: variable
+  parameters:
+    comment: ''
+    value: '50'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [360, 4.0]
+    rotation: 0
+    state: true
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: 100e3
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [192, 4.0]
+    rotation: 0
+    state: enabled
+- name: sweep_rate
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: ''
+    min_len: '200'
+    orient: Qt.Horizontal
+    rangeType: float
+    start: '1'
+    step: '1'
+    stop: 1e4
+    value: '1'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [456, 4.0]
+    rotation: 0
+    state: true
+- name: analog_sig_source_x_1
+  id: analog_sig_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: '1'
+    comment: ''
+    freq: f_start
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    offset: '0'
+    phase: '0'
+    samp_rate: samp_rate
+    type: float
+    waveform: analog.GR_SIN_WAVE
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [216, 156.0]
+    rotation: 0
+    state: true
+- name: blocks_message_debug_0
+  id: blocks_message_debug
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1112, 184.0]
+    rotation: 0
+    state: true
+- name: blocks_throttle_1
+  id: blocks_throttle
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    ignoretag: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_second: samp_rate
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [456, 196.0]
+    rotation: 0
+    state: true
+- name: epy_block_0_0
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nEmbedded Python Blocks:\n\nEach time this file is saved,\
+      \ GRC will instantiate the first class it finds\nto get ports and parameters\
+      \ of your block. The arguments to __init__  will\nbe the parameters. All of\
+      \ them are required to have default values!\n\"\"\"\n\nimport numpy as np\n\
+      from gnuradio import gr\nimport pmt\n\n\nclass blk(gr.sync_block): # other base\
+      \ classes are basic_block, decim_block, interp_block\n    \"\"\"\n    Embedded\
+      \ Python Block\n    Function changing periodically the signal source's frequency,\
+      \ from\n    f_min to f_max, by step of BW_per_channel [i.e. (f_max-f_min)/(n_channels-1)]\n\
+      \n    samp_rate ==> samp_rate values per signal period\n    sweep_rate ==> sweep_rate\
+      \ cycling per second\n    Means we stay samp_rate/sweep_rate values in each\
+      \ channel\n    [N.B.: n_channels ==> samp_rate/sweep_rate/n_channels in each\
+      \ channel]\n    \"\"\"\n\n    def __init__(self, n_channels=3, samp_rate=32e3,\
+      \ sweep_rate=1, f_start=2.4e3, f_stop=2.5e3): # only default arguments here\n\
+      \        \"\"\"arguments to this function show up as parameters in GRC\"\"\"\
+      \n        gr.sync_block.__init__(\n            self,\n            name='Frequency\
+      \ sweeper', # will show up in GRC\n            in_sig=[np.float32],\n      \
+      \      out_sig=[]\n        )\n        # if an attribute with the same name as\
+      \ a parameter is found,\n        # a callback is registered (properties work,\
+      \ too).\n        self.n_channels = n_channels\n        self.samp_rate = samp_rate\n\
+      \        self.sweep_rate = sweep_rate\n        self.f_start = f_start\n    \
+      \    self.f_stop = f_stop\n\n        self.BW_tot = self.f_stop - f_start\n\n\
+      \        self.frequencies = [self.f_start + i*self.BW_tot/(self.n_channels-1)\
+      \ for i in range(self.n_channels)]\n\n        self.counter = 0 # if bigger than\
+      \ given threshold, update the frequency\n        self.i = 0 # which frequency\
+      \ to select\n\n        self.t_per_freq = self.samp_rate/self.sweep_rate/self.n_channels\n\
+      \        #self.t_per_freq = self.samp_rate/self.sweep_rate/(self.n_channels\
+      \ - 1)\n        #self.t_per_freq = self.samp_rate/self.sweep_rate/(self.n_channels\
+      \ + 1)\n        #self.t_per_freq = self.n_channels*self.samp_rate/(self.sweep_rate*self.n_channels\
+      \ + 1)\n\n        self.outPortFreq = \"frequency\"\n        self.message_port_register_out(pmt.intern(self.outPortFreq))\n\
+      \        self.outPortDebugMsg = \"debug\"\n        self.message_port_register_out(pmt.intern(self.outPortDebugMsg))\n\
+      \n\n\n    def work(self, input_items, output_items):\n        \"\"\"\n     \
+      \   Example: change frequency of signal source periodically\n        samp_rate\
+      \ ==> samp_rate values per signal period\n        sweep_rate ==> sweep_rate\
+      \ cycling per second\n        Means we stay samp_rate/sweep_rate values in each\
+      \ channel\n        [N.B.: n_channels ==> samp_rate/sweep_rate/n_channels in\
+      \ each channel]\n        \"\"\"\n\n        # Create dictionaries to send messages\
+      \ to source and terminal\n        dict_debug = pmt.make_dict()\n        dict_msg\
+      \ = pmt.make_dict()\n\n        # Some debug messages sent to the terminal\n\
+      \        dict_debug = pmt.dict_add(dict_debug, pmt.intern(\"t_per_freq\"), pmt.from_double(self.t_per_freq))\n\
+      \        dict_debug = pmt.dict_add(dict_debug, pmt.intern(\"counter\"), pmt.from_double(self.counter))\n\
+      \        pmt_msg_debug = pmt.dict_add(dict_debug, pmt.intern(f\"freq[{self.i}]\"\
+      ), pmt.from_double(self.frequencies[self.i]))\n        self.message_port_pub(pmt.intern(self.outPortDebugMsg),\
+      \ pmt_msg_debug)\n\n        self.counter = self.counter + len(input_items[0])\n\
+      \n        if self.counter > self.t_per_freq:\n            self.i += 1\n    \
+      \        self.counter = 0\n\n        if self.i > len(self.frequencies)-1: self.i\
+      \ = 0\n\n        # Message sent to update the source frequency\n        pmt_msg\
+      \ = pmt.dict_add(dict_msg, pmt.intern(\"freq\"), pmt.from_double(self.frequencies[self.i]))\n\
+      \        self.message_port_pub(pmt.intern(self.outPortFreq), pmt_msg)\n\n  \
+      \      return len(input_items[0])\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    f_start: f_start
+    f_stop: f_stop
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    n_channels: n_channels
+    samp_rate: samp_rate
+    sweep_rate: sweep_rate
+  states:
+    _io_cache: '(''Frequency sweeper'', ''blk'', [(''n_channels'', ''3''), (''samp_rate'',
+      ''32000.0''), (''sweep_rate'', ''1''), (''f_start'', ''2400.0''), (''f_stop'',
+      ''2500.0'')], [(''0'', ''float'', 1)], [(''debug'', ''message'', 1), (''frequency'',
+      ''message'', 1)], "\n    Embedded Python Block\n    Function changing periodically
+      the signal source''s frequency, from\n    f_min to f_max, by step of BW_per_channel
+      [i.e. (f_max-f_min)/(n_channels-1)]\n\n    samp_rate ==> samp_rate values per
+      signal period\n    sweep_rate ==> sweep_rate cycling per second\n    Means we
+      stay samp_rate/sweep_rate values in each channel\n    [N.B.: n_channels ==>
+      samp_rate/sweep_rate/n_channels in each channel]\n    ", [''f_start'', ''f_stop'',
+      ''n_channels'', ''samp_rate'', ''sweep_rate''])'
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [744, 164.0]
+    rotation: 0
+    state: enabled
+- name: note_0
+  id: note
+  parameters:
+    alias: ''
+    comment: "The variable \"samp_rate\" indicates how much values are required\n\
+      to have one second elapsed\n==> 1 second = (samp_rate) values.\n\nFor a signal\
+      \ having a frequency \"freq\",\n\t(samp_rate / freq) values\nare required to\
+      \ have a period.\n\nIf the sweep frequency is given by \"sweep_rate\", meaning\
+      \ that\nthe full bandwidth is swept \"sweep_rate\" times per second, then\n\
+      one sweep is represented by\n(1 sweep) = (samp_rate / sweep_rate) values.\n\n\
+      The sweep is given by\nf1 -> f2 -> ... -> fN -> f1 -> ...\nhence, \"n_channels\"\
+      \ transitions are needed. This means that we\nhave the identity\n(1 sweep) =\
+      \ (n_channels) = (samp_rate / sweep_rate) values.\nFrom there, we find that\
+      \ we should stay at the same frequency for\n(samp_rate / sweep_rate / n_channels)\
+      \ values."
+    note: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 308.0]
+    rotation: 0
+    state: true
+- name: qtgui_freq_sink_x_1
+  id: qtgui_freq_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    average: '1.0'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '"blue"'
+    color10: '"dark blue"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: ''
+    ctrlpanel: 'False'
+    fc: '0'
+    fftsize: '1024'
+    freqhalf: 'True'
+    grid: 'False'
+    gui_hint: '[1, 0]'
+    label: Relative Gain
+    label1: ''
+    label10: ''''''
+    label2: ''''''
+    label3: ''''''
+    label4: ''''''
+    label5: ''''''
+    label6: ''''''
+    label7: ''''''
+    label8: ''''''
+    label9: ''''''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: '""'
+    nconnections: '1'
+    showports: 'False'
+    tr_chan: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_tag: '""'
+    type: float
+    units: dB
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    wintype: firdes.WIN_BLACKMAN_hARRIS
+    ymax: '10'
+    ymin: '-140'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [744, 284.0]
+    rotation: 0
+    state: disabled
+- name: qtgui_waterfall_sink_x_1
+  id: qtgui_waterfall_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '0'
+    color10: '0'
+    color2: '0'
+    color3: '0'
+    color4: '0'
+    color5: '0'
+    color6: '0'
+    color7: '0'
+    color8: '0'
+    color9: '0'
+    comment: ''
+    fc: '0'
+    fftsize: '1024'
+    freqhalf: 'True'
+    grid: 'True'
+    gui_hint: '[2, 0]'
+    int_max: '10'
+    int_min: '-140'
+    label1: ''
+    label10: ''
+    label2: ''
+    label3: ''
+    label4: ''
+    label5: ''
+    label6: ''
+    label7: ''
+    label8: ''
+    label9: ''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: '""'
+    nconnections: '1'
+    showports: 'False'
+    type: float
+    update_time: '0.10'
+    wintype: firdes.WIN_BLACKMAN_hARRIS
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [744, 364.0]
+    rotation: 0
+    state: true
+- name: virtual_sink_0
+  id: virtual_sink
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: f_signal
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1072, 292.0]
+    rotation: 0
+    state: true
+- name: virtual_source_0
+  id: virtual_source
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: f_signal
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 180.0]
+    rotation: 0
+    state: true
+
+connections:
+- [analog_sig_source_x_1, '0', blocks_throttle_1, '0']
+- [blocks_throttle_1, '0', epy_block_0_0, '0']
+- [blocks_throttle_1, '0', qtgui_freq_sink_x_1, '0']
+- [blocks_throttle_1, '0', qtgui_waterfall_sink_x_1, '0']
+- [epy_block_0_0, debug, blocks_message_debug_0, print]
+- [epy_block_0_0, frequency, virtual_sink_0, '0']
+- [virtual_source_0, '0', analog_sig_source_x_1, cmd]
+
+metadata:
+  file_format: 1
